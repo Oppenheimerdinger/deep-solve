@@ -8,10 +8,19 @@ cold confirmation solve, honest non-convergence).
 Lineage: `delegating-hard-problems` + `review-to-convergence` skills, glued
 into one harness so no human/main-agent intervention is needed mid-loop.
 
-## Install (local)
+## Install
 
-    claude plugin marketplace add /fsx/dipark/projects/deep-solve
-    claude plugin install deep-solve@dipark-local
+    claude plugin marketplace add Oppenheimerdinger/deep-solve
+    claude plugin install deep-solve@dipark
+
+Or from a local clone:
+
+    claude plugin marketplace add /path/to/deep-solve
+    claude plugin install deep-solve@dipark
+
+## License
+
+MIT
 
 ## Use
 
