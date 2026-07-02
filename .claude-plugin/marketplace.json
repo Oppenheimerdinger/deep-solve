@@ -1,0 +1,11 @@
+{
+  "name": "dipark-local",
+  "owner": { "name": "dipark" },
+  "plugins": [
+    {
+      "name": "deep-solve",
+      "source": "./",
+      "description": "Deterministic delegate→review→re-solve convergence harness"
+    }
+  ]
+}
