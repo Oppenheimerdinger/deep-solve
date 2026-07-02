@@ -1,6 +1,6 @@
 ---
 name: deep-solve
-description: Use when blocked, stuck, or low-confidence on a hard SELF-CONTAINED sub-problem with a definite right answer — a derivation, proof, design/architecture decision, algorithm choice, root-cause, or tradeoff analysis — and the full delegate → independent-review → re-solve loop should run to convergence WITHOUT further intervention. Subsumes delegating-hard-problems for this case (that skill and review-to-convergence remain for manual/partial use). Keywords - deep solve, converge, delegate and verify, fresh eyes loop, solve to convergence.
+description: Use when blocked, stuck, or low-confidence on a hard SELF-CONTAINED sub-problem with a definite right answer — a derivation, proof, algorithm choice, root-cause, or design tradeoff — and an unattended delegate → independent-review → re-solve loop to convergence is warranted (the user asked for a verified answer or invoked deep solve). Prefer this over delegating-hard-problems / review-to-convergence (if installed) when the whole loop should run; those remain for manual or partial steps. Keywords - deep solve, converge, delegate and verify, fresh eyes loop, solve to convergence.
 ---
 
 # Deep Solve
@@ -22,20 +22,28 @@ launched, no intervention until it returns.
    - WITHHOLD your own tentative conclusion — the solvers must derive cold.
 2. Brief review loop (review-to-convergence, executed here — NOT in the Workflow,
    because only you can fix the brief):
-   - Dispatch a fresh independent reviewer (Agent tool, model = resolved model
-     below) checking three axes: self-contained? faithful? solvable?
+   - Dispatch a fresh independent reviewer: a general-purpose read-only agent
+     (Agent tool, model = resolved model below). Its prompt must include the full
+     brief verbatim and instruct it to check three axes — self-contained?
+     faithful? solvable? — where "faithful" REQUIRES opening every cited
+     `file:line` in the repo and verifying the brief's claims against the actual
+     code/values. It returns a findings list (empty list = pass).
    - Fix findings → re-dispatch → repeat until a pass with ZERO findings.
+   - If not converged after 4 review iterations, stop and escalate to the user
+     instead of looping further.
    - If a read-only reviewer idles without reporting, grep its transcript JSONL
-     for the final assistant message instead of re-prompting.
+     (under `~/.claude/projects/<project-slug>/`) for the final assistant
+     message instead of re-prompting.
 
 ## Resolve overrides (user request → args)
 
 | User said | args |
 |---|---|
 | "N라운드", "N rounds", "--rounds N" | `maxRounds: N` |
-| "리뷰어 N", "패널로", "--reviewers N" | `reviewers: N` |
-| "확증 생략", "--no-confirm" | `confirm: false` |
-| "fable로", "--model fable" | `model: "fable"` |
+| "리뷰어 N", "N reviewers", "--reviewers N" | `reviewers: N` |
+| "패널로", "as a panel" (no number given) | `reviewers: 3` |
+| "확증 생략", "skip confirmation", "--no-confirm" | `confirm: false` |
+| "fable로", "use fable", "--model fable" | `model: "fable"` |
 
 Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
 **fable ONLY on explicit user request — never by default.**
@@ -43,12 +51,17 @@ Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
 ## Kickoff banner (print BEFORE launching — informational, not an approval gate)
 
 ```
-▶ deep-solve 시작
-  모델   : {model} (max effort)        ← fable 원하면 "fable로" 지시   [이 화살표 줄은 model이 opus일 때만]
-  예산   : solve 최대 {maxRounds}회 (확증 포함)
-  스케줄 : {expanded}  (조기종료 가능; 잘 된 brief는 2회로 끝남)
-  리뷰어 : {reviewers}명 / 확증 solve: {on|off}
+▶ deep-solve
+  model    : {model} (max effort)
+  budget   : up to {maxRounds} solves (incl. confirmation)
+  schedule : {expanded}  (may exit early; a good brief finishes in 2)
+  reviewers: {reviewers} / confirmation solve: {on|off}
 ```
+
+Render the banner — labels included — in the conversation language (e.g. Korean
+labels for a Korean conversation). When `model` is opus, append a short hint on
+the model line that the user may request the strongest model (e.g.
+`← say "use fable" / "fable로" for the strongest model`); omit the hint otherwise.
 
 `{expanded}` = the schedule written out in full: last slot SYNTH, odd COLD, even
 REPAIR — e.g. maxRounds 4 → `COLD → REPAIR → COLD → SYNTH`; maxRounds 6 →
@@ -69,6 +82,11 @@ Workflow({
 The base directory is announced when this skill loads. Do not copy the script
 elsewhere; do not register it as a named workflow.
 
+If the Workflow tool is NOT available in this environment, say so to the user
+(Phase 2 requires it) and fall back to running the loop manually with the Agent
+tool: fresh solver → fresh independent reviewer per round, following the same
+schedule and honesty rules.
+
 ## Post-processing (MANDATORY — the return is not user-visible by itself)
 
 Report: `converged` / `evidence` / `roundsUsed` / findings summary. Then:
@@ -78,6 +96,7 @@ Report: `converged` / `evidence` / `roundsUsed` / findings summary. Then:
   evidence grade was downgraded (no independent confirmation — budget exhausted,
   confirm disabled, or confirmation agent unavailable; they may rerun with a
   larger budget).
-- `converged: false` → do NOT adopt silently and do NOT auto-rerun. Either return
-  to Phase 1 (suspect the brief — the most common root cause) or escalate to the
-  user with the remaining findings.
+- `converged: false` → do NOT adopt silently and do NOT auto-rerun. The best
+  reviewed attempt is still returned in `answer` — show it clearly marked as
+  UNCONVERGED alongside its remaining findings. Then either return to Phase 1
+  (suspect the brief — the most common root cause) or escalate to the user.

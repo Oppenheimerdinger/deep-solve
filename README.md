@@ -31,6 +31,12 @@ MIT
 
 opus (max effort), solve budget 4 (incl. confirmation), 1 reviewer, confirm on.
 
+## Requirements
+
+Phase 2 runs on the Claude Code **Workflow tool** (deterministic multi-agent
+orchestration). On installs without it, the skill announces the limitation and
+falls back to driving the loop manually with the Agent tool.
+
 ## Test
 
     node --test tests/*.test.mjs
