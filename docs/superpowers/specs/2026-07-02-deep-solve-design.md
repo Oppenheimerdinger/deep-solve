@@ -47,7 +47,7 @@ Workflow**. 근거: brief를 고치려면 매 라운드 main의 세션 컨텍스
    모든 기호 정의, 필요한 수치·사실 인라인, 실제 시스템에 충실(file:line), 확정 제약 명시,
    유효한 답의 형태 명시, "see the session" 금지. **main의 잠정 결론은 brief에서 은닉.**
 2. **brief 리뷰 루프** (`review-to-convergence`, main-loop에서 실행):
-   fresh independent reviewer (Agent tool, `model: fable`)가 self-contained / faithful /
+   fresh independent reviewer (Agent tool, 기본 `model: opus`)가 self-contained / faithful /
    solvable 3축으로 검증 → main이 수정 → 재리뷰 → **zero-finding까지**.
 3. 수렴한 brief를 `args`로 Phase 2 Workflow에 전달.
 
@@ -60,7 +60,8 @@ Workflow**. 근거: brief를 고치려면 매 라운드 main의 세션 컨텍스
   brief: string,        // Phase 1에서 수렴한 brief (필수)
   maxRounds: 4,         // solve 호출 총예산. 확증 solve 포함. 사용자 지시/인자로 오버라이드
   confirm: true,        // false면 확증 solve 생략 (증거 등급 영구 reviewer-silence 캡)
-  reviewers: 1          // 라운드당 리뷰어 수. >1이면 N-vote 패널 (load-bearing 문제용)
+  reviewers: 1,         // 라운드당 리뷰어 수. >1이면 N-vote 패널 (load-bearing 문제용)
+  model: "opus"         // solver/reviewer/확증 모델. "fable"은 사용자가 명시 요청 시에만
 }
 ```
 
@@ -79,7 +80,8 @@ Workflow**. 근거: brief를 고치려면 매 라운드 main의 세션 컨텍스
 
 `maxRounds > 4` 일반화: **마지막 라운드 = SYNTH, 그 외 홀수 = COLD, 짝수 = REPAIR.**
 
-- **solver**: 매 라운드 fresh, `model: fable`, `effort: max`.
+- **solver**: 매 라운드 fresh, `model: args.model` (기본 **opus**), `effort: max`.
+  **fable은 사용자가 명시적으로 요청한 경우에만** (`"fable로"`, `--model fable` 등) 사용.
 - **reviewer**: 매 라운드 fresh + **brief와 제출 답안만** 받음. 이전 findings를 주지 않는다
   (체크리스트 편향 + 제2의 앵커링 채널 차단). REPAIR가 유발한 회귀를 잡는 것은 이
   전체-재검이다. `reviewers > 1`이면 독립 패널: findings는 **union**(한 명이라도 지적하면
@@ -135,8 +137,26 @@ main agent의 후처리 (스킬이 지시):
 | structural, SYNTH까지 | 4 | reviewer-silence (정직 강등) |
 
 Phase 1이 brief를 이미 수렴시키므로 SYNTH 경로는 드묾. N=5 상시 예약은 드문 경로에
-max-effort Fable +1회를 항상 지불하는 셈이라 과함 → **default 4**, 강등을 본 main/사용자가
+max-effort solve +1회를 항상 지불하는 셈이라 과함 → **default 4**, 강등을 본 main/사용자가
 예산 증액 재실행을 판단.
+
+## 킥오프 배너 (사용자 가시성)
+
+Phase 2 Workflow 실행 **직전에** main agent가 실행 조건을 배너로 출력한다 (스킬이 지시).
+정보 표시이지 승인 게이트가 아님 — 외부 개입 제거가 목적이므로 출력 후 바로 진행.
+
+```
+▶ deep-solve 시작
+  모델   : opus (max effort)        ← fable 원하면 "fable로" 지시
+  예산   : solve 최대 4회 (확증 포함)
+  스케줄 : COLD → REPAIR → COLD → SYNTH  (조기종료 가능; 잘 된 brief는 2회로 끝남)
+  리뷰어 : 1명 / 확증 solve: on
+```
+
+- 스케줄은 **펼친 시퀀스로 표기** — "홀수=COLD, 짝수=REPAIR" 같은 홀짝 규칙은 내부 구현
+  일반화로만 쓰고 사용자에게 노출하지 않는다 (N=6이면
+  `COLD → REPAIR → COLD → REPAIR → COLD → SYNTH`로 펼쳐서 출력).
+- 종료 시에도 요약 리포트 출력: `converged / evidence / roundsUsed / (미수렴 시) 잔여 findings`.
 
 ## 발화 (트리거)
 
@@ -144,7 +164,8 @@ max-effort Fable +1회를 항상 지불하는 셈이라 과함 → **default 4**
   right answer + separable. 스킬 description에서 deep-solve가 hard-problem 케이스를
   포섭함을 명시해 기존 스킬과의 이중 발화를 줄임.
 - **수동 (커맨드)**: `/deep-solve <문제 서술>`. 인자·자연어 지시("10라운드까지", "패널로
-  검증", "확증 생략")를 스킬이 읽어 args (`maxRounds`, `reviewers`, `confirm`)로 반영.
+  검증", "확증 생략", "fable로")를 스킬이 읽어 args (`maxRounds`, `reviewers`, `confirm`,
+  `model`)로 반영.
 
 ## 에러 처리
 
@@ -175,3 +196,5 @@ max-effort Fable +1회를 항상 지불하는 셈이라 과함 → **default 4**
   fresh Fable cold 유도와 main의 독립 분석이 "하이브리드 + 최종 cold 확증"에서 수렴한
   것이 채택 증거. (이 결정 과정 자체가 본 플러그인의 실전 드라이런이었음.)
 - **default maxRounds=4**: 위 경로별 예산 표. 사용자 오버라이드 허용.
+- **default model=opus**: fable/max는 명시 요청 시에만 (2026-07-02 사용자 지시). 킥오프
+  배너로 모델·예산·스케줄을 실행 전에 가시화; 스케줄은 홀짝 규칙이 아닌 펼친 시퀀스로 표기.
