@@ -163,3 +163,10 @@ test('missing brief throws', async () => {
   const mock = makeMock()
   await assert.rejects(() => run(mock, {}), /args\.brief/)
 })
+
+test('args delivered as a JSON string (real Workflow runtime behavior) still works', async () => {
+  const mock = makeMock({ solves: [S('42')], reviews: [R()], confirms: [S('42')] })
+  const out = await run(mock, JSON.stringify({ brief: BRIEF, maxRounds: 4 }))
+  assert.equal(out.converged, true)
+  assert.equal(out.evidence, 'independent-agreement')
+})

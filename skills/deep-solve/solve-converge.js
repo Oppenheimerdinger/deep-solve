@@ -109,6 +109,10 @@ async function conclusionsMatch(a, b, model) {
 }
 
 // ---------- args ----------
+// The Workflow runtime may deliver args as a JSON-encoded string — normalize first.
+if (typeof args === 'string') {
+  try { args = JSON.parse(args) } catch { args = null }
+}
 if (!args || typeof args.brief !== 'string' || !args.brief.trim()) {
   throw new Error('args.brief (non-empty string) is required — Phase 1 must pass the converged brief')
 }
