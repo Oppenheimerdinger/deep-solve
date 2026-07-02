@@ -24,4 +24,4 @@ opus (max effort), solve budget 4 (incl. confirmation), 1 reviewer, confirm on.
 
 ## Test
 
-    node --test tests/
+    node --test tests/*.test.mjs

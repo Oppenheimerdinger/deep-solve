@@ -75,8 +75,9 @@ Report: `converged` / `evidence` / `roundsUsed` / findings summary. Then:
 
 - `converged: true, evidence: "independent-agreement"` → adopt the answer.
 - `converged: true, evidence: "reviewer-silence"` → adopt, but tell the user the
-  evidence grade was downgraded (budget ran out before the confirmation solve;
-  they may rerun with a larger budget).
+  evidence grade was downgraded (no independent confirmation — budget exhausted,
+  confirm disabled, or confirmation agent unavailable; they may rerun with a
+  larger budget).
 - `converged: false` → do NOT adopt silently and do NOT auto-rerun. Either return
   to Phase 1 (suspect the brief — the most common root cause) or escalate to the
   user with the remaining findings.

@@ -170,3 +170,41 @@ test('args delivered as a JSON string (real Workflow runtime behavior) still wor
   assert.equal(out.converged, true)
   assert.equal(out.evidence, 'independent-agreement')
 })
+
+test('degraded panel (dead reviewer) cannot grant zero-finding convergence', async () => {
+  const mock = makeMock({
+    solves: [S('42'), S('42')],
+    reviews: [null, R(), R(), R(), R(), R()], // r1: 1 dead + 2 silent → not attested; r2: 3 silent
+    confirms: [S('42')],
+  })
+  const out = await run(mock, { brief: BRIEF, reviewers: 3 })
+  assert.equal(out.converged, true)
+  assert.equal(out.roundsUsed, 3) // r1 must NOT converge despite zero findings from survivors
+})
+
+test('forceSynth persists across a dead forced-SYNTH solver', async () => {
+  const mock = makeMock({
+    solves: [S('42'), null, S('42v2')],
+    reviews: [R(), R()],
+    confirms: [S('SEVENTEEN'), S('42v2')],
+    equivs: [{ equivalent: false }],
+  })
+  const out = await run(mock, { brief: BRIEF, maxRounds: 6 })
+  assert.equal(out.converged, true)
+  assert.equal(out.evidence, 'independent-agreement')
+  const solveLabels = mock.calls.filter(c => c.kind === 'solve').map(c => c.label)
+  assert.deepEqual(solveLabels, ['solve:COLD:r1', 'solve:SYNTH:r2', 'solve:SYNTH:r3']) // SYNTH re-forced after dead solver
+})
+
+test('CONFIRM half-round never wins best-of on exhaustion', async () => {
+  const mock = makeMock({
+    solves: [S('42')],
+    reviews: [R()],
+    confirms: [S('SEVENTEEN')],
+    equivs: [{ equivalent: false }],
+  })
+  const out = await run(mock, { brief: BRIEF, maxRounds: 2 })
+  assert.equal(out.converged, false)
+  assert.equal(out.answer, 'full answer (42)') // the REVIEWED answer, not the confirmation answer
+  assert.equal(out.findings.length, 1) // the disagreement, honestly attached
+})

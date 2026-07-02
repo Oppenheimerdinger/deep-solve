@@ -142,7 +142,6 @@ while (slotsUsed < MAX) {
   round++
   const hasReviewed = reviewedEntries(history).length > 0
   const mode = modeFor(round, slotsUsed === MAX - 1, forceSynth, hasReviewed)
-  forceSynth = false
   log(`round ${round}: ${mode} (slot ${slotsUsed + 1}/${MAX})`)
 
   const solved = await agent(buildSolverPrompt(mode, BRIEF, history, allFindings), {
@@ -155,6 +154,7 @@ while (slotsUsed < MAX) {
     log(`round ${round}: solver unavailable — slot consumed`)
     continue
   }
+  if (mode === 'SYNTH') forceSynth = false
 
   const reviews = (await parallel(Array.from({ length: REVIEWERS }, (_, i) => () =>
     agent(buildReviewerPrompt(BRIEF, solved), {
@@ -170,6 +170,12 @@ while (slotsUsed < MAX) {
 
   // Panel semantics: union of findings; zero ⇔ every reviewer silent.
   const findings = reviews.flatMap(r => r.findings)
+  if (findings.length === 0 && reviews.length < REVIEWERS) {
+    // A dead reviewer is absent, not silent — zero findings from a partial panel is not attested.
+    history.push({ round, mode, answer: solved, findings: null })
+    log(`round ${round}: panel degraded (${reviews.length}/${REVIEWERS} reviewers) — zero findings not attested`)
+    continue
+  }
   history.push({ round, mode, answer: solved, findings })
   log(`round ${round}: ${findings.length} finding(s) from ${reviews.length} reviewer(s)`)
 
