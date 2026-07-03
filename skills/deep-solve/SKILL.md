@@ -1,13 +1,14 @@
 ---
 name: deep-solve
-description: Use when blocked, stuck, or low-confidence on a hard SELF-CONTAINED sub-problem with a definite right answer — a derivation, proof, algorithm choice, root-cause, or design tradeoff — and an unattended delegate → independent-review → re-solve loop to convergence is warranted (the user asked for a verified answer or invoked deep solve). Prefer this over delegating-hard-problems / review-to-convergence (if installed) when the whole loop should run; those remain for manual or partial steps. Keywords - deep solve, converge, delegate and verify, fresh eyes loop, solve to convergence.
+description: This skill should be used ONLY on explicit request — the user invokes /deep-solve or says "deep solve" / "deep-solve" / "딥솔브" / "solve to convergence" / "delegate and verify". Never auto-trigger for merely hard problems or stuck sessions; without an explicit request, at most briefly mention that /deep-solve is available and continue normally. Once invoked, fits hard self-contained problems with a definite right answer (derivation, proof, algorithm choice, root-cause, design tradeoff).
 ---
 
 # Deep Solve
 
-Two phases. Phase 1 (brief convergence) is YOURS — author-in-the-loop, needs your
-session context. Phase 2 (solution convergence) is a deterministic Workflow — once
-launched, no intervention until it returns.
+Two phases plus a user gate. Phase 1 (brief convergence) is YOURS —
+author-in-the-loop, needs your session context. Then the USER approves the
+converged brief. Phase 2 (solution convergence) is a deterministic Workflow —
+once launched, no intervention until it returns.
 
 ## Phase 1 — converge the brief (main loop, you)
 
@@ -48,7 +49,13 @@ launched, no intervention until it returns.
 Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
 **fable ONLY on explicit user request — never by default.**
 
-## Kickoff banner (print BEFORE launching — informational, not an approval gate)
+## User gate — approve the brief (MANDATORY, blocks Phase 2)
+
+After the brief review loop converges, present to the user in ONE message:
+
+1. **The converged brief, full text** (quoted block) — the user must be able to
+   inspect exactly what the solvers will receive.
+2. **The kickoff banner** with the resolved run parameters:
 
 ```
 ▶ deep-solve
@@ -58,9 +65,16 @@ Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
   reviewers: {reviewers} / confirmation solve: {on|off}
 ```
 
-Render the banner — labels included — in the conversation language (e.g. Korean
-labels for a Korean conversation). When `model` is opus, append a short hint on
-the model line that the user may request the strongest model (e.g.
+3. **An explicit question**: launch as-is / edit the brief / adjust parameters /
+   cancel. Do NOT start Phase 2 — Workflow or manual fallback — until the user
+   approves. If the user edits the brief substantively, fold the edits in,
+   re-run one brief review pass, and re-present the gate. If the user adjusts
+   parameters or makes non-substantive edits, apply them and re-present the
+   gate with the updated banner; launch only on an explicit go.
+
+Render everything — banner labels included — in the conversation language (e.g.
+Korean labels for a Korean conversation). When `model` is opus, append a short
+hint on the model line that the user may request the strongest model (e.g.
 `← say "use fable" / "fable로" for the strongest model`); omit the hint otherwise.
 
 `{expanded}` = the schedule written out in full: last slot SYNTH, odd COLD, even
@@ -68,7 +82,7 @@ REPAIR — e.g. maxRounds 4 → `COLD → REPAIR → COLD → SYNTH`; maxRounds 
 `COLD → REPAIR → COLD → REPAIR → COLD → SYNTH`. NEVER show the odd/even rule to
 the user; always print the expanded sequence.
 
-## Phase 2 — launch the Workflow
+## Phase 2 — launch the Workflow (only after user approval)
 
 Invoke the Workflow tool with the script that ships next to this skill:
 
@@ -99,4 +113,5 @@ Report: `converged` / `evidence` / `roundsUsed` / findings summary. Then:
 - `converged: false` → do NOT adopt silently and do NOT auto-rerun. The best
   reviewed attempt is still returned in `answer` — show it clearly marked as
   UNCONVERGED alongside its remaining findings. Then either return to Phase 1
-  (suspect the brief — the most common root cause) or escalate to the user.
+  (suspect the brief — the most common root cause; the user gate applies again
+  before any relaunch) or escalate to the user.

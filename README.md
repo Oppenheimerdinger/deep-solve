@@ -24,8 +24,12 @@ MIT
 
 ## Use
 
-- Auto: the skill triggers when blocked on a hard self-contained sub-problem.
-- Manual: `/deep-solve <problem>` — overrides: "6라운드", "리뷰어 3", "확증 생략", "fable로".
+Explicit invocation only (no auto-trigger): `/deep-solve <problem>` or ask for
+"deep solve" — overrides: `--rounds N`, `--reviewers N`, `--no-confirm`,
+`--model fable` (natural-language forms like "6라운드", "패널로" also work).
+
+After the brief converges, the skill shows you the exact brief + run parameters
+and waits for your approval before launching the workflow.
 
 ## Defaults
 

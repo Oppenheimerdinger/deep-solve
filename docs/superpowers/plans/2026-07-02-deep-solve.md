@@ -1,3 +1,5 @@
+> **Superseded note (2026-07-03):** trigger is now explicit-invocation-only and a mandatory user gate (brief approval) precedes the Workflow launch — see skills/deep-solve/SKILL.md. This plan reflects the original v0.1.0 design.
+
 # deep-solve Plugin Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
