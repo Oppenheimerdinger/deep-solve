@@ -72,6 +72,13 @@ After the brief review loop converges, present to the user in ONE message:
    parameters or makes non-substantive edits, apply them and re-present the
    gate with the updated banner; launch only on an explicit go.
 
+**Pre-approval path**: if the user has explicitly authorized autonomous
+execution for this run ("자율적으로 진행", "run autonomously", "승인 생략" /
+"skip approval", "게이트 스킵"), do not wait at the gate — but STILL print the
+full brief and the banner (the record stands even when the wait is waived),
+then launch immediately. Vague delegation ("알아서 해줘" without reference to
+this run's approval) does NOT qualify — present the gate normally.
+
 Render everything — banner labels included — in the conversation language (e.g.
 Korean labels for a Korean conversation). When `model` is opus, append a short
 hint on the model line that the user may request the strongest model (e.g.
