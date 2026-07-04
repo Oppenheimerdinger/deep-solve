@@ -208,3 +208,38 @@ test('CONFIRM half-round never wins best-of on exhaustion', async () => {
   assert.equal(out.answer, 'full answer (42)') // the REVIEWED answer, not the confirmation answer
   assert.equal(out.findings.length, 1) // the disagreement, honestly attached
 })
+
+test('premise-challenge: round-1 solver challenges a brief premise → early exit, no review burned', async () => {
+  const mock = makeMock({
+    solves: [{ ...S('conditional-42'), premiseChallenge: 'the d884=G1 attribution is untested; run the grid-dims query' }],
+  })
+  const out = await run(mock, { brief: BRIEF })
+  assert.equal(out.converged, false)
+  assert.equal(out.evidence, 'premise-challenge')
+  assert.equal(out.premiseChallenge, 'the d884=G1 attribution is untested; run the grid-dims query')
+  assert.equal(out.roundsUsed, 1)
+  assert.deepEqual(mock.calls.map(c => c.kind), ['solve'])   // no reviewer, no confirm
+})
+
+test('premise-challenge ignored after round 1: round-2 REPAIR with a challenge still converges normally', async () => {
+  const mock = makeMock({
+    solves: [S('41'), { ...S('42'), premiseChallenge: 'late challenge — must be ignored' }],
+    reviews: [R(F('slip')), R()],
+    confirms: [S('42')],
+  })
+  const out = await run(mock, { brief: BRIEF })
+  assert.equal(out.converged, true)
+  assert.equal(out.evidence, 'independent-agreement')
+  assert.equal(out.premiseChallenge, undefined)
+})
+
+test('empty premiseChallenge string on round 1 does NOT early-exit', async () => {
+  const mock = makeMock({
+    solves: [{ ...S('42'), premiseChallenge: '  ' }],
+    reviews: [R()],
+    confirms: [S('42')],
+  })
+  const out = await run(mock, { brief: BRIEF })
+  assert.equal(out.converged, true)
+  assert.equal(out.evidence, 'independent-agreement')
+})
