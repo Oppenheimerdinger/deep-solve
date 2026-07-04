@@ -157,12 +157,14 @@ while (slotsUsed < MAX) {
   }
   if (mode === 'SYNTH') forceSynth = false
 
-  // PREMISE-CHECK EARLY EXIT (2026-07-04): if the FIRST cold solver challenges a
-  // load-bearing untested premise of the brief itself, do not burn the remaining
-  // rounds on a possibly-phantom problem — return the challenge for the
-  // coordinator to test empirically. Later rounds ignore this field (a challenge
-  // that survives round 1's review pressure would re-surface as findings).
-  if (round === 1 && typeof solved.premiseChallenge === 'string' && solved.premiseChallenge.trim()) {
+  // PREMISE-CHECK EARLY EXIT (2026-07-04): if the FIRST SUCCESSFUL solve (not
+  // necessarily round 1 — a dead solver consumes a slot without solving)
+  // challenges a load-bearing untested premise of the brief itself, do not burn
+  // the remaining rounds on a possibly-phantom problem — return the challenge for
+  // the coordinator to test empirically. Later solves ignore this field (a
+  // challenge that survives the first review pressure re-surfaces as findings).
+  const isFirstSolve = !history.some(h => h.answer)
+  if (isFirstSolve && typeof solved.premiseChallenge === 'string' && solved.premiseChallenge.trim()) {
     log('round 1 solver challenged a brief premise — early exit for empirical check')
     return {
       answer: solved.answer, converged: false, evidence: 'premise-challenge',

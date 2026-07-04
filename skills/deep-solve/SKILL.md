@@ -125,15 +125,25 @@ schedule and honesty rules.
 
 ## Post-processing (MANDATORY — the return is not user-visible by itself)
 
-Report: `converged` / `evidence` / `roundsUsed` / findings summary. Then:
+Report: `converged` / `evidence` / `roundsUsed` / findings summary (plus
+`premiseChallenge` when `evidence` is `"premise-challenge"`). Then:
 
 - `converged: true, evidence: "independent-agreement"` → adopt the answer.
 - `converged: true, evidence: "reviewer-silence"` → adopt, but tell the user the
   evidence grade was downgraded (no independent confirmation — budget exhausted,
   confirm disabled, or confirmation agent unavailable; they may rerun with a
   larger budget).
-- `converged: false` → do NOT adopt silently and do NOT auto-rerun. The best
-  reviewed attempt is still returned in `answer` — show it clearly marked as
+- `converged: false, evidence: "premise-challenge"` → the round-1 solver challenged
+  a load-bearing, untested premise of the brief itself — this is NOT a solve
+  failure. Do NOT adopt `answer` (it is only a conditional best-effort) and do NOT
+  relaunch the solver. Read the `premiseChallenge` field (named premise + exact
+  cheap test), RUN that test yourself, and fold the result into the brief. If it
+  invalidates the premise the problem statement changes; if it confirms it,
+  annotate that. Either way re-present the corrected brief at the Phase-1 user
+  gate before any relaunch.
+- `converged: false` otherwise (budget exhausted; `answer` may be null if no
+  attempt was ever reviewed) → do NOT adopt silently and do NOT auto-rerun. The
+  best reviewed attempt is still returned in `answer` — show it clearly marked as
   UNCONVERGED alongside its remaining findings. Then either return to Phase 1
   (suspect the brief — the most common root cause; the user gate applies again
   before any relaunch) or escalate to the user.

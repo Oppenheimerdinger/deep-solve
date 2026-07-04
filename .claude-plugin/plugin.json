@@ -1,6 +1,8 @@
 {
   "name": "deep-solve",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Delegate a hard self-contained problem to a deterministic solve→review convergence loop (delegating-hard-problems + review-to-convergence, automated end-to-end)",
-  "author": { "name": "dipark" }
+  "author": {
+    "name": "dipark"
+  }
 }

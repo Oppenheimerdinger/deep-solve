@@ -243,3 +243,13 @@ test('empty premiseChallenge string on round 1 does NOT early-exit', async () =>
   assert.equal(out.converged, true)
   assert.equal(out.evidence, 'independent-agreement')
 })
+
+test('premise-challenge: dead round-1 solver, round-2 first-real-solve challenge still early-exits', async () => {
+  const mock = makeMock({
+    solves: [null, { ...S('cond'), premiseChallenge: 'premise X untested; run test Y' }],
+  })
+  const out = await run(mock, { brief: BRIEF })
+  assert.equal(out.evidence, 'premise-challenge')
+  assert.equal(out.premiseChallenge, 'premise X untested; run test Y')
+  assert.equal(out.roundsUsed, 2)   // dead slot + the challenging solve
+})
