@@ -21,14 +21,29 @@ once launched, no intervention until it returns.
    - What a valid answer looks like and how it will be validated stated.
    - No "see the session"; no references a fresh agent cannot open.
    - WITHHOLD your own tentative conclusion — the solvers must derive cold.
+   - ★EMPIRICAL-PREMISE PROVENANCE: classify every MEASURED claim the problem rests
+     on — especially LABELS/attributions connecting a measurement to an entity
+     ("kernel X is call Y", "the slow phase is Z") — as (a) directly verified by a
+     described experiment, or (b) inherited/inferred. A load-bearing (b) with a
+     cheap decisive test (≲30 min) is an UNCLOSED PREMISE: run that test and fold
+     the result in BEFORE Phase 2. **A brief with an unclosed cheap-verifiable
+     load-bearing premise is NOT converged** — this includes anything you were
+     tempted to file under an "honest gap / experiment #0" section: if it is cheap
+     and could invalidate the problem statement, it runs NOW, not in the solver's
+     ladder. (2026-07-04 lesson: a name-plausibility kernel attribution inherited
+     unverified cost a full 5-round run + an implementation campaign — one grid
+     query would have killed the premise first.)
 2. Brief review loop (review-to-convergence, executed here — NOT in the Workflow,
    because only you can fix the brief):
    - Dispatch a fresh independent reviewer: a general-purpose read-only agent
      (Agent tool, model = resolved model below). Its prompt must include the full
-     brief verbatim and instruct it to check three axes — self-contained?
-     faithful? solvable? — where "faithful" REQUIRES opening every cited
-     `file:line` in the repo and verifying the brief's claims against the actual
-     code/values. It returns a findings list (empty list = pass).
+     brief verbatim and instruct it to check FOUR axes — self-contained?
+     faithful? solvable? premise-audited? — where "faithful" REQUIRES opening every
+     cited `file:line` in the repo and verifying the brief's claims against the
+     actual code/values, and "premise-audited" REQUIRES listing each load-bearing
+     MEASURED claim with its provenance class ((a) directly verified / (b)
+     inherited-unverified) and flagging any (b) that has a cheap decisive test as
+     a BLOCKING finding. It returns a findings list (empty list = pass).
    - Fix findings → re-dispatch → repeat until a pass with ZERO findings.
    - If not converged after 4 review iterations, stop and escalate to the user
      instead of looping further.

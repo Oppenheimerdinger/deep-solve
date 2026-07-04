@@ -14,6 +14,7 @@ const SOLVE_SCHEMA = {
   properties: {
     answer: { type: 'string', description: 'Complete answer including full reasoning' },
     conclusion: { type: 'string', description: 'Final conclusion only — one compact sentence or expression' },
+    premiseChallenge: { type: 'string', description: 'ONLY if a load-bearing premise of the brief itself is untested and a cheap decisive test could invalidate the problem statement: name the premise + the exact test. Empty string otherwise.' },
   },
   required: ['answer', 'conclusion'],
 }
@@ -72,7 +73,7 @@ function rankEntries(entries) {
 }
 
 function buildSolverPrompt(mode, brief, history, allFindings) {
-  const head = `You are a fresh expert solver with a clean context. Solve the following self-contained problem. Everything you need is stated in the brief; do not assume any prior discussion.\n\n# Brief\n\n${brief}`
+  const head = `You are a fresh expert solver with a clean context. Solve the following self-contained problem. Everything you need is stated in the brief; do not assume any prior discussion.\n\nPREMISE GUARD: before solving, audit the brief's own measured facts. If a LOAD-BEARING premise (especially a label/attribution tying a measurement to an entity) is untested and a cheap decisive test could invalidate the problem statement itself, set premiseChallenge to that premise + the exact test (and still give your best conditional answer). Otherwise leave premiseChallenge empty.\n\n# Brief\n\n${brief}`
 
   if (mode === 'COLD') {
     if (allFindings.length === 0) {
@@ -155,6 +156,20 @@ while (slotsUsed < MAX) {
     continue
   }
   if (mode === 'SYNTH') forceSynth = false
+
+  // PREMISE-CHECK EARLY EXIT (2026-07-04): if the FIRST cold solver challenges a
+  // load-bearing untested premise of the brief itself, do not burn the remaining
+  // rounds on a possibly-phantom problem — return the challenge for the
+  // coordinator to test empirically. Later rounds ignore this field (a challenge
+  // that survives round 1's review pressure would re-surface as findings).
+  if (round === 1 && typeof solved.premiseChallenge === 'string' && solved.premiseChallenge.trim()) {
+    log('round 1 solver challenged a brief premise — early exit for empirical check')
+    return {
+      answer: solved.answer, converged: false, evidence: 'premise-challenge',
+      premiseChallenge: solved.premiseChallenge.trim(),
+      findings: [], roundsUsed: slotsUsed, log: summarizeLog(),
+    }
+  }
 
   const reviews = (await parallel(Array.from({ length: REVIEWERS }, (_, i) => () =>
     agent(buildReviewerPrompt(BRIEF, solved), {
