@@ -1,8 +1,9 @@
 {
   "name": "deep-solve",
-  "version": "0.2.0",
-  "description": "Delegate a hard self-contained problem to a deterministic solve→review convergence loop (delegating-hard-problems + review-to-convergence, automated end-to-end)",
+  "version": "0.2.1",
+  "description": "Hard-problem convergence harness: user-gated brief, then a deterministic solve→review loop (closed-book) or a grounded solver + verifying reviewer",
   "author": {
     "name": "dipark"
-  }
+  },
+  "repository": "https://github.com/Oppenheimerdinger/deep-solve"
 }

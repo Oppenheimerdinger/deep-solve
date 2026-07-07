@@ -12,13 +12,16 @@ chosen during Phase 1:
 
 - **loop** — deterministic Workflow, unattended, closed-book solvers. For
   problems fully closable on paper.
-- **delegate** — one fresh tool-having solver + one verifying reviewer,
+- **grounded** — one fresh tool-having solver + one verifying reviewer,
   attended. For problems whose load-bearing facts must be established against
   the live system.
 
 ## Phase 1 — converge the brief (main loop, you)
 
-1. Write a SELF-CONTAINED problem brief (delegating-hard-problems checklist):
+1. Write a SELF-CONTAINED problem brief (checklist inlined below; lineage:
+   delegating-hard-problems). Decide the TENTATIVE mode here (see Mode routing
+   below) — a grounded-mode brief needs its Open-questions section written
+   before the review loop starts:
    - Every symbol / term / variable defined.
    - Every number, measured value, and fact the solver needs is INLINE.
    - Faithful to the REAL system: cite actual `file:line` and real values, not an
@@ -36,9 +39,8 @@ chosen during Phase 1:
      load-bearing premise is NOT converged** — this includes anything you were
      tempted to file under an "honest gap / experiment #0" section: if it is cheap
      and could invalidate the problem statement, it runs NOW, not in the solver's
-     ladder. (2026-07-04 lesson: a name-plausibility kernel attribution inherited
-     unverified cost a full 5-round run + an implementation campaign — one grid
-     query would have killed the premise first.)
+     ladder. (A 2026-07-04 run lost 5 rounds + an implementation campaign to one
+     unverified kernel attribution.)
 2. Brief review loop (review-to-convergence, executed here — NOT in the Workflow,
    because only you can fix the brief):
    - Dispatch a fresh independent reviewer: a general-purpose agent with read
@@ -53,10 +55,12 @@ chosen during Phase 1:
      — **running that test itself when it can (read-only, cheap) and inlining
      the result (command + output) instead of just flagging**. It returns a
      findings list (empty list = pass).
-   - In delegate mode the reviewer additionally verifies each entry of the
+   - In grounded mode the reviewer additionally verifies each entry of the
      brief's "Open questions" section: load-bearing? and NOT cheaply closable
      read-only? (If the reviewer can close one itself, that is a finding: the
-     fact gets inlined with its command+output, the question removed.)
+     fact gets inlined with its command+output, the question removed. A
+     non-load-bearing entry is likewise a finding — demote it to a hint or
+     drop it.)
    - Fix findings → re-dispatch → repeat until a pass with ZERO findings.
    - If not converged after 4 review iterations, stop and escalate to the user
      instead of looping further.
@@ -70,13 +74,15 @@ chosen during Phase 1:
   the author's session context → OUT OF SCOPE for deep-solve: say so and
   recommend plain delegation. Same for facts needing WRITE/experiment access.
 - Load-bearing facts remain that need live READ access and were not cheaply
-  closable in Phase 1 → recommend **delegate**. The brief gains an "Open
+  closable in Phase 1 → recommend **grounded**. The brief gains an "Open
   questions to resolve against the live system" section (entries verified by
   the Phase-1 reviewer, above) with starting pointers (hints, not a boundary);
   the brief is then self-contained *modulo* those open questions.
 - Otherwise → **loop**. Speed/cost NEVER picks the mode (budget is a knob).
 - The gate banner's mode line must enumerate the SPECIFIC facts that could not
-  be closed and why. The user can override with `--mode loop|delegate`.
+  be closed and why. The user can override with `--mode loop|grounded`; if the
+  user forces loop while open questions remain, state at the gate that the
+  loop grade will rest on those unverified premises.
 - This routing is a heuristic, not a proof — **when the call is ambiguous,
   present both options at the user gate with the tradeoff, but ALWAYS
   recommend exactly one.** The gate, not the heuristic, is the final arbiter.
@@ -90,6 +96,7 @@ chosen during Phase 1:
 | "패널로", "as a panel" (no number given) | `reviewers: 3` |
 | "확증 생략", "skip confirmation", "--no-confirm" | `confirm: false` |
 | "fable로", "use fable", "--model fable" | `model: "fable"` |
+| "--mode loop\|grounded", "루프로", "grounded로" | mode override (beats the Phase-1 recommendation) |
 
 Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
 **fable ONLY on explicit user request — never by default.**
@@ -104,14 +111,14 @@ After the brief review loop converges, present to the user in ONE message:
 
 ```
 ▶ deep-solve
-  mode     : {loop|delegate} — {the specific facts that forced the mode, or "fully closed brief"}
+  mode     : {loop|grounded} — {the specific facts that forced the mode, or "fully closed brief"}
   model    : {model} (max effort)
   budget   : up to {maxRounds} solves (incl. confirmation)
   schedule : {expanded}  (may exit early; a good brief finishes in 2)
   reviewers: {reviewers} / confirmation solve: {on|off}
 ```
 
-In delegate mode the budget/schedule/reviewers lines are replaced by
+In grounded mode the budget/schedule/reviewers lines are replaced by
 `run : 1 solver (max effort) · max 1 continuation · 1 verifying reviewer`
 (`maxRounds` / `confirm` / `reviewers` args are ignored — say so if the user
 set them).
@@ -129,9 +136,10 @@ execution for this run ("자율적으로 진행", "run autonomously", "승인 �
 full brief and the banner (the record stands even when the wait is waived),
 then launch immediately. Vague delegation ("알아서 해줘" without reference to
 this run's approval) does NOT qualify — present the gate normally.
-**Delegate mode never runs under this waiver** (it depends on the attended
-permission barrier): print the brief + banner, state that delegate mode needs
-an attended session, and stop. Loop mode remains available autonomously.
+**Grounded mode never runs under this waiver** (it depends on the attended
+permission barrier): print the brief + banner, state that grounded mode needs
+an attended session, and stop — do NOT switch modes yourself; the user must
+explicitly choose loop.
 
 Render everything — banner labels included — in the conversation language (e.g.
 Korean labels for a Korean conversation). When `model` is opus, append a short
@@ -154,15 +162,16 @@ Workflow({
 })
 ```
 
-The base directory is announced when this skill loads. Do not copy the script
-elsewhere; do not register it as a named workflow.
+The base directory is announced when this skill loads (or supplied by the
+invoking command). Do not copy the script elsewhere; do not register it as a
+named workflow.
 
 If the Workflow tool is NOT available in this environment, say so to the user
 (Phase 2 requires it) and fall back to running the loop manually with the Agent
 tool: fresh solver → fresh independent reviewer per round, following the same
 schedule and honesty rules.
 
-## Phase 2, delegate mode (attended; no Workflow; only after user approval)
+## Phase 2, grounded mode (attended; no Workflow; only after user approval)
 
 1. **Solver**: one fresh agent, max effort, read tools + sandboxed Bash, no
    write/edit (the attended permission system is the write barrier). Returns:
@@ -179,17 +188,18 @@ schedule and honesty rules.
    `confirmed`; `failed` = the re-run materially CONTRADICTS the claim, not
    byte-inequality). A `failed` load-bearing item is a blocking finding;
    (iii) any load-bearing claim WITHOUT an appendix entry is a finding.
-3. **Continuation**: on findings, at most ONE continuation of the same solver;
-   the continuation prompt is the reviewer's raw output block + the brief.
-   Its output gets a FULL re-review by the same reviewer (new or changed
-   appendix items added to the table).
+3. **Continuation**: on findings, at most ONE continuation; the continuation
+   prompt is the brief + the solver's raw return block + the reviewer's raw
+   output block (this works whether the same agent is resumed or a new one is
+   spawned). Its output gets a FULL re-review by the same reviewer (new or
+   changed appendix items added to the table).
 4. **Grade** (NEVER `independent-agreement`):
    - zero-finding final pass AND all load-bearing items `confirmed` →
      `grounded-single-solver, reviewer-verified`
    - zero findings but `not-reproduced` load-bearing items or an unresolved
      premise doubt → `grounded-single-solver, partially-verified` (name the
      items on the grade line)
-   - findings remain → `unconverged-delegate` (findings attached)
+   - findings remain → `unconverged-grounded` (findings attached)
    The final report ALWAYS includes the reviewer's final raw output — findings
    AND table — verbatim next to the grade.
 5. **Still failing** after the one continuation → the user chooses: accept as
@@ -199,7 +209,8 @@ schedule and honesty rules.
 ## Post-processing (MANDATORY — the return is not user-visible by itself)
 
 Report: `converged` / `evidence` / `roundsUsed` / findings summary (plus
-`premiseChallenge` when `evidence` is `"premise-challenge"`). Then:
+`premiseChallenge` when `evidence` is `"premise-challenge"`). The following
+bullets are the LOOP-mode Workflow return; grounded mode is handled after them:
 
 - `converged: true, evidence: "independent-agreement"` → adopt the answer.
 - `converged: true, evidence: "reviewer-silence"` → adopt, but tell the user the
@@ -221,7 +232,7 @@ Report: `converged` / `evidence` / `roundsUsed` / findings summary (plus
   (suspect the brief — the most common root cause; the user gate applies again
   before any relaunch) or escalate to the user.
 
-Delegate-mode results are reported per the grade rules above (grade + verbatim
+Grounded-mode results are reported per the grade rules above (grade + verbatim
 reviewer output). `reviewer-verified`/`partially-verified` answers are adoptable
 with their grade stated; suggest a loop re-run only when the user wants
 reproduction-type evidence on top of grounding.
