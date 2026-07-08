@@ -4,9 +4,10 @@ Automates the hard-problem loop: main agent converges a self-contained BRIEF
 (author-in-the-loop), the user approves it at a gate, then the SOLUTION is
 converged in one of two modes:
 
-- **loop** — deterministic Workflow, unattended, closed-book fresh solvers
-  (schedule COLD → REPAIR → COLD → SYNTH, cold confirmation solve, honest
-  non-convergence). For problems fully closable on paper.
+- **isolated** — deterministic Workflow, unattended, closed-book fresh solvers
+  sealed off from the live system (schedule COLD → REPAIR → COLD → SYNTH, cold
+  confirmation solve, honest non-convergence). For problems fully closable on
+  paper.
 - **grounded** — one fresh tool-having solver + one verifying reviewer,
   attended. For problems whose load-bearing facts must be established against
   the live system (the solver grounds them itself; the reviewer re-verifies
@@ -22,7 +23,7 @@ into one harness so no human/main-agent intervention is needed mid-loop.
 Grades combine **grounding** (were the facts checked against the live system?)
 and **agreement** (did independent derivations concur?):
 
-- loop: `independent-agreement` > `reviewer-silence` (closed-book axis)
+- isolated: `independent-agreement` > `reviewer-silence` (closed-book axis)
 - grounded: `grounded-single-solver, reviewer-verified` /
   `grounded-single-solver, partially-verified` / `unconverged-grounded`
   (grounded axis)
@@ -30,7 +31,7 @@ and **agreement** (did independent derivations concur?):
 The two axes are **incomparable**: for derivation-heavy problems agreement is
 the stronger signal; for fact-heavy problems grounding is (two closed-book
 solvers can agree in hallucination). Want both? Run grounded mode to establish
-the facts, close the brief with them, then run loop.
+the facts, close the brief with them, then run isolated mode.
 
 ## Accepted residual risks (deliberate)
 
@@ -41,7 +42,8 @@ routing misjudgment on boundary problems) because every run passes a mandatory
 user gate showing the full brief, mode rationale, and — in grounded mode — the
 reviewer's raw verification table verbatim. The attended user is the backstop.
 Grounded mode never runs under an autonomous-run waiver. Roadmap: a future
-"grounded loop" (read-only tools for loop solvers) would absorb grounded mode.
+"grounded loop" (read-only tools for isolated-mode solvers) would absorb
+grounded mode.
 
 ## Install
 
@@ -61,8 +63,9 @@ MIT
 
 Explicit invocation only (no auto-trigger): `/deep-solve <problem>` or ask for
 "deep solve" — overrides: `--rounds N`, `--reviewers N`, `--no-confirm`,
-`--model fable`, `--mode loop|grounded` (natural-language forms like "6라운드",
-"패널로" also work; rounds/reviewers/confirm apply to loop mode only).
+`--model fable`, `--mode isolated|grounded` (natural-language forms like
+"6라운드", "패널로" also work; rounds/reviewers/confirm apply to isolated mode
+only).
 
 After the brief converges, the skill shows you the exact brief + run parameters
 and waits for your approval before launching the workflow.

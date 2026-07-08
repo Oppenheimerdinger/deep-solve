@@ -10,8 +10,8 @@ author-in-the-loop, needs your session context. Then the USER approves the
 converged brief. Phase 2 (solution convergence) runs in one of two modes,
 chosen during Phase 1:
 
-- **loop** — deterministic Workflow, unattended, closed-book solvers. For
-  problems fully closable on paper.
+- **isolated** — deterministic Workflow, unattended, closed-book solvers
+  sealed off from the live system. For problems fully closable on paper.
 - **grounded** — one fresh tool-having solver + one verifying reviewer,
   attended. For problems whose load-bearing facts must be established against
   the live system.
@@ -78,11 +78,11 @@ chosen during Phase 1:
   questions to resolve against the live system" section (entries verified by
   the Phase-1 reviewer, above) with starting pointers (hints, not a boundary);
   the brief is then self-contained *modulo* those open questions.
-- Otherwise → **loop**. Speed/cost NEVER picks the mode (budget is a knob).
+- Otherwise → **isolated**. Speed/cost NEVER picks the mode (budget is a knob).
 - The gate banner's mode line must enumerate the SPECIFIC facts that could not
-  be closed and why. The user can override with `--mode loop|grounded`; if the
-  user forces loop while open questions remain, state at the gate that the
-  loop grade will rest on those unverified premises.
+  be closed and why. The user can override with `--mode isolated|grounded`; if
+  the user forces isolated mode while open questions remain, state at the gate
+  that its grade will rest on those unverified premises.
 - This routing is a heuristic, not a proof — **when the call is ambiguous,
   present both options at the user gate with the tradeoff, but ALWAYS
   recommend exactly one.** The gate, not the heuristic, is the final arbiter.
@@ -96,7 +96,7 @@ chosen during Phase 1:
 | "패널로", "as a panel" (no number given) | `reviewers: 3` |
 | "확증 생략", "skip confirmation", "--no-confirm" | `confirm: false` |
 | "fable로", "use fable", "--model fable" | `model: "fable"` |
-| "--mode loop\|grounded", "루프로", "grounded로" | mode override (beats the Phase-1 recommendation) |
+| "--mode isolated\|grounded", "격리로", "grounded로" | mode override (beats the Phase-1 recommendation) |
 
 Defaults: `maxRounds: 4`, `reviewers: 1`, `confirm: true`, `model: "opus"`.
 **fable ONLY on explicit user request — never by default.**
@@ -111,7 +111,7 @@ After the brief review loop converges, present to the user in ONE message:
 
 ```
 ▶ deep-solve
-  mode     : {loop|grounded} — {the specific facts that forced the mode, or "fully closed brief"}
+  mode     : {isolated|grounded} — {the specific facts that forced the mode, or "fully closed brief"}
   model    : {model} (max effort)
   budget   : up to {maxRounds} solves (incl. confirmation)
   schedule : {expanded}  (may exit early; a good brief finishes in 2)
@@ -139,7 +139,7 @@ this run's approval) does NOT qualify — present the gate normally.
 **Grounded mode never runs under this waiver** (it depends on the attended
 permission barrier): print the brief + banner, state that grounded mode needs
 an attended session, and stop — do NOT switch modes yourself; the user must
-explicitly choose loop.
+explicitly choose isolated mode.
 
 Render everything — banner labels included — in the conversation language (e.g.
 Korean labels for a Korean conversation). When `model` is opus, append a short
@@ -151,7 +151,7 @@ REPAIR — e.g. maxRounds 4 → `COLD → REPAIR → COLD → SYNTH`; maxRounds 
 `COLD → REPAIR → COLD → REPAIR → COLD → SYNTH`. NEVER show the odd/even rule to
 the user; always print the expanded sequence.
 
-## Phase 2, loop mode — launch the Workflow (only after user approval)
+## Phase 2, isolated mode — launch the Workflow (only after user approval)
 
 Invoke the Workflow tool with the script that ships next to this skill:
 
@@ -210,7 +210,8 @@ schedule and honesty rules.
 
 Report: `converged` / `evidence` / `roundsUsed` / findings summary (plus
 `premiseChallenge` when `evidence` is `"premise-challenge"`). The following
-bullets are the LOOP-mode Workflow return; grounded mode is handled after them:
+bullets are the ISOLATED-mode Workflow return; grounded mode is handled after
+them:
 
 - `converged: true, evidence: "independent-agreement"` → adopt the answer.
 - `converged: true, evidence: "reviewer-silence"` → adopt, but tell the user the
@@ -234,5 +235,5 @@ bullets are the LOOP-mode Workflow return; grounded mode is handled after them:
 
 Grounded-mode results are reported per the grade rules above (grade + verbatim
 reviewer output). `reviewer-verified`/`partially-verified` answers are adoptable
-with their grade stated; suggest a loop re-run only when the user wants
-reproduction-type evidence on top of grounding.
+with their grade stated; suggest an isolated-mode re-run only when the user
+wants reproduction-type evidence on top of grounding.

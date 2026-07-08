@@ -1,6 +1,6 @@
 ---
 description: Solve a hard self-contained problem via the deep-solve convergence harness
-argument-hint: <problem> [--mode loop|grounded] [--rounds N] [--reviewers N] [--no-confirm] [--model fable]
+argument-hint: <problem> [--mode isolated|grounded] [--rounds N] [--reviewers N] [--no-confirm] [--model fable]
 ---
 
 Follow the deep-solve skill below EXACTLY (do not re-invoke it via the Skill
@@ -13,7 +13,7 @@ problem statement plus any overrides
 and loops. Do not "simplify" this file to a Skill-tool call.)
 
 The skill's "base directory" is `${CLAUDE_PLUGIN_ROOT}/skills/deep-solve/`, so
-the loop-mode Phase 2 script path is
+the isolated-mode Phase 2 script path is
 `${CLAUDE_PLUGIN_ROOT}/skills/deep-solve/solve-converge.js`.
 
 @${CLAUDE_PLUGIN_ROOT}/skills/deep-solve/SKILL.md

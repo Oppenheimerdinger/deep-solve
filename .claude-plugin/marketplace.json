@@ -5,7 +5,7 @@
     {
       "name": "deep-solve",
       "source": "./",
-      "description": "Two-mode hard-problem convergence harness (deterministic loop / grounded solver + reviewer)"
+      "description": "Two-mode hard-problem convergence harness (isolated deterministic loop / grounded solver + reviewer)"
     }
   ]
 }
