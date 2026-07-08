@@ -45,6 +45,8 @@ Grounded mode never runs under an autonomous-run waiver. Roadmap: a future
 "grounded loop" (read-only tools for isolated-mode solvers) would absorb
 grounded mode.
 
+한국어 안내: [docs/USAGE-ko.md](docs/USAGE-ko.md)
+
 ## Install
 
     claude plugin marketplace add Oppenheimerdinger/deep-solve
