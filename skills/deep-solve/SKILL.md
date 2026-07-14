@@ -1,6 +1,6 @@
 ---
 name: deep-solve
-description: MOVED — install oppenheimerdinger@dipark instead; this standalone plugin is archived. This skill should be used ONLY on explicit request — the user invokes /deep-solve or says "deep solve" / "deep-solve" / "딥솔브" / "solve to convergence" / "delegate and verify". Never auto-trigger for merely hard problems or stuck sessions; without an explicit request, at most briefly mention that /deep-solve is available and continue normally. Once invoked, fits hard self-contained problems with a definite right answer (derivation, proof, algorithm choice, root-cause, design tradeoff).
+description: MOVED — install ohd@dipark instead; this standalone plugin is archived. This skill should be used ONLY on explicit request — the user invokes /deep-solve or says "deep solve" / "deep-solve" / "딥솔브" / "solve to convergence" / "delegate and verify". Never auto-trigger for merely hard problems or stuck sessions; without an explicit request, at most briefly mention that /deep-solve is available and continue normally. Once invoked, fits hard self-contained problems with a definite right answer (derivation, proof, algorithm choice, root-cause, design tradeoff).
 ---
 
 # Deep Solve
