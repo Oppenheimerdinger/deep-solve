@@ -1,3 +1,14 @@
+> **MOVED (2026-07-14):** deep-solve is now part of the
+> [oppenheimerdinger](https://github.com/Oppenheimerdinger/oppenheimerdinger)
+> plugin (bundled verbatim as of v0.2.2). Migrate with:
+>
+>     claude plugin uninstall deep-solve@dipark
+>     claude plugin marketplace remove dipark
+>     claude plugin marketplace add Oppenheimerdinger/oppenheimerdinger
+>     claude plugin install oppenheimerdinger@dipark
+>
+> This repo is archived; history and old tags remain readable.
+
 # deep-solve
 
 Automates the hard-problem loop: main agent converges a self-contained BRIEF

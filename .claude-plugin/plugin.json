@@ -1,6 +1,6 @@
 {
   "name": "deep-solve",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Hard-problem convergence harness: user-gated brief, then an isolated solve→review loop (closed-book, deterministic) or a grounded solver + verifying reviewer",
   "author": {
     "name": "dipark"
